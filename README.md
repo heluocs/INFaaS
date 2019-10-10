@@ -30,22 +30,24 @@ INFaaS will need access to this bucket when registering a model.
 ### General Setup
 1. Create an [AWS EC2](https://aws.amazon.com/ec2/) instance, which will serve as the master node.
 In our experiments, we use an `m5.2xlarge` instance.
-We provide a public AMI(ami-0e78494a87c4df251) in *us-west-2* (that you can [copy to your region](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html)) that contains the pre-installed dependencies.
+We provide a public AMI (ami-0e78494a87c4df251) in *us-west-2* (that you can [copy to your region](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html)) that contains the pre-installed dependencies.
 The instance should have the IAM Role and Security Group you created in the [**One-time Setup**](https://github.com/stanford-mast/INFaaS#one-time-setup) attached to it.
 2. If you don't use our AMI (which already has INFaaS's directory set up), clone the INFaaS repository: `git clone https://github.com/stanford-mast/INFaaS.git`.
-3. Open `start_infaas.sh` and fill in the following entries:
+3. Open `start_infaas.sh` and fill in the following entries. Entries between <> must be filled in prior to using INFaaS; the rest are set to defaults which can be changed based on your desired configuration.
     ```
     ###### UPDATE THESE VALUES BEFORE RUNNING ######
     REGION='<REGION>'
     ZONE='<ZONE>'
     SECURITY_GROUP='<SECURITYGROUP>'
     IAM_ROLE='<IAMROLE>'
-    MODELDB='<MYMODELDB>'
-    CONFIGDB='<MYCONFIG>'
-    WORKER_IMAGE='<INFAASAMI>'
+    MODELDB='<MYMODELDB>' # Model repository bucket (do not include s3://)
+    CONFIGDB='<MYCONFIGDB>' # Configuration bucket (do not include s3://)
+    WORKER_IMAGE='ami-<INFAASAMI>'
     NUM_INIT_CPU_WORKERS=1
     NUM_INIT_GPU_WORKERS=0
-    MAX_WORKERS=5 # Used for VM daemon to avoid unstable behavior
+    MAX_CPU_WORKERS=1
+    MAX_GPU_WORKERS=0
+    SLACK_GPU=0 # Used for making popular GPU variants exclusive, set to 0 for no GPU to be used as exclusive
     KEY_NAME='worker_key'
     MACHINE_TYPE_GPU='p3.2xlarge'
     MACHINE_TYPE_CPU='m5.2xlarge'
