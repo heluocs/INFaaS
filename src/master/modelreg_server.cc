@@ -253,10 +253,51 @@ private:
         return Status::OK;
       }
 
+      // This is a better way to do it, but for some reason it is not finding the bucket object
+      //// even though it is successfully copied.
+      /*
       Aws::S3::Model::HeadObjectRequest check_request;
       check_request.WithBucket(destination_bucket).WithKey(destination_object);
       auto check_outcome = s3_client.HeadObject(check_request);
       if (check_outcome.IsSuccess()) {
+        std::cout << "[LOG]: Successfully copied" << std::endl;
+      } else {
+        std::cout << "[LOG]: Model path probably wrong..." << std::endl;
+        auto error = check_outcome.GetError();
+        std::cout << "ERROR: " << error.GetExceptionName() << ": "
+                  << error.GetMessage() << std::endl;
+
+        rs->set_status(RequestReplyEnum::INVALID);
+        rs->set_msg(
+            "Model not copied successfully. Model path likely invalid!");
+        return Status::OK;
+      }
+      */
+
+      Aws::S3::Model::ListObjectsV2Request check_request;
+      check_request.WithBucket(destination_bucket);
+      auto check_outcome = s3_client.ListObjectsV2(check_request);
+
+      bool check_passed = false;
+      if (check_outcome.IsSuccess()) {
+        Aws::Vector<Aws::S3::Model::Object> check_object_list =
+          check_outcome.GetResult().GetContents();
+
+        for (auto const &s3_object : check_object_list) {
+          std::string next_object(s3_object.GetKey().c_str(),
+                                  s3_object.GetKey().size());
+          std::cout << "* " << next_object << std::endl;
+          size_t ind = next_object.find("/");
+          std::string dest_check = next_object.substr(0, ind);
+          // variant_name is the string version of destination_object above
+          if (dest_check == variant_name) {
+            check_passed = true;
+            break;
+          }
+        }
+      }
+
+      if (check_passed) { 
         std::cout << "[LOG]: Successfully copied" << std::endl;
       } else {
         std::cout << "[LOG]: Model path probably wrong..." << std::endl;
