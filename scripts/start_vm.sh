@@ -104,7 +104,7 @@ fi
 # nohup to avoid busy waiting
 if [[ "${MASTER_IP}" == "${exec_ip}" ]]; then
   # Start the executor locally.
-  bash ${STARTUP_SCRIPT} ${MASTER_IP} ${WORKER_AUTOSCALER} \
+  bash ${STARTUP_SCRIPT} ${MASTER_IP} ${MODELDB} ${WORKER_AUTOSCALER} \
        > /tmp/start_worker.log 2>&1 < /dev/null &
 else
   ssh -o StrictHostKeyChecking=no -i ${KEY_FULL} "ubuntu@"${PUBLIC_DNS} \
